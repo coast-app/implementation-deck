@@ -1,0 +1,1037 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Your Coast Implementation</title>
+<meta name="description" content="What to expect during your Coast implementation — stages, dates, and what we need from you.">
+
+<style>
+/* ============================================================
+   COAST BRAND TOKENS (Lighthouse)
+   Do not invent new colors. Use the closest token below.
+   ============================================================ */
+:root{
+  --green:#00CAAC; --green-10:#E6FAF7; --green-20:#DAF6F0; --green-30:#B4ECE0; --green-70:#00A188;
+  --purple:#281E38; --purple-90:#362355; --purple-80:#503874; --purple-40:#AF96D6; --purple-10:#EAE7EF;
+  --n0:#FFFFFF; --n10:#F7F7F7; --n20:#F0F0F0; --n30:#E5E5E5; --n40:#CCCCCC; --n60:#8F8F8F; --n70:#707070; --n80:#444444;
+  --ok:#369227; --ok-bg:#ECFFE7;
+  --warn:#C68012; --warn-bg:#FFF6E6;
+  --err:#FF1E5F; --err-bg:#FFEFF3;
+  --info:#487ADF; --info-bg:#E8EDF8;
+
+  --sp:8px;
+  --maxw:1080px;
+  --font:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{
+  font-family:var(--font);
+  background:var(--n0);
+  color:var(--purple);
+  font-size:16px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+}
+img{max-width:100%;}
+
+/* ---------- Deck scaffolding ---------- */
+.deck{
+  height:100vh;
+  overflow-y:scroll;
+  scroll-snap-type:y mandatory;
+  scroll-behavior:smooth;
+}
+.slide{
+  min-height:100vh;
+  scroll-snap-align:start;
+  scroll-snap-stop:always;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  padding:72px 64px;
+  position:relative;
+  background:var(--n0);
+}
+.slide-inner{width:100%;max-width:var(--maxw);margin:0 auto;}
+.slide.dark{background:var(--purple);color:var(--n0);}
+.slide.tint{background:var(--green-10);}
+.slide.grey{background:var(--n10);}
+
+/* ---------- Type ---------- */
+.eyebrow{
+  font-size:12px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--green-70);margin:0 0 16px;
+}
+.dark .eyebrow{color:var(--green);}
+h1{font-size:clamp(38px,5.4vw,60px);font-weight:700;line-height:1.06;letter-spacing:-.02em;margin:0 0 24px;}
+h2{font-size:clamp(28px,3.4vw,40px);font-weight:700;line-height:1.14;letter-spacing:-.015em;margin:0 0 20px;}
+h3{font-size:20px;font-weight:600;line-height:1.3;margin:0 0 8px;}
+h4{font-size:14px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--n70);margin:0 0 12px;}
+.dark h4{color:var(--purple-40);}
+p{margin:0 0 16px;}
+.lede{font-size:clamp(17px,1.7vw,20px);line-height:1.55;color:var(--n80);max-width:66ch;}
+.dark .lede{color:var(--purple-10);}
+.sm{font-size:14px;}
+.xs{font-size:12px;}
+.muted{color:var(--n70);}
+.dark .muted{color:var(--purple-40);}
+strong{font-weight:600;}
+a{color:var(--info);}
+.dark a{color:var(--green);}
+
+/* ---------- Layout helpers ---------- */
+.grid{display:grid;gap:24px;}
+.g2{grid-template-columns:repeat(2,1fr);}
+.g3{grid-template-columns:repeat(3,1fr);}
+.g4{grid-template-columns:repeat(4,1fr);}
+.stack{display:flex;flex-direction:column;gap:16px;}
+.row{display:flex;gap:16px;align-items:flex-start;}
+.mt{margin-top:32px;}
+.mt-s{margin-top:16px;}
+
+/* ---------- Cards ---------- */
+.card{
+  background:var(--n0);border:1px solid var(--n30);border-radius:12px;padding:24px;
+}
+.tint .card,.grey .card{background:var(--n0);}
+.dark .card{background:var(--purple-90);border-color:var(--purple-80);}
+.card-accent{border-top:4px solid var(--green);}
+
+/* ---------- Commitment columns ---------- */
+.commit{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.commit .col{border-radius:12px;padding:28px;}
+.commit .ours{background:var(--purple);color:var(--n0);}
+.commit .yours{background:var(--green-10);border:1px solid var(--green-30);}
+.commit h3{font-size:15px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:20px;}
+.commit .ours h3{color:var(--green);}
+.commit .yours h3{color:var(--green-70);}
+.commit ul{list-style:none;margin:0;padding:0;}
+.commit li{padding:12px 0;border-bottom:1px solid rgba(255,255,255,.13);font-size:15px;line-height:1.45;}
+.commit .yours li{border-bottom-color:var(--green-30);}
+.commit li:last-child{border-bottom:none;}
+.commit li b{display:block;font-weight:600;margin-bottom:2px;}
+
+/* ---------- Timeline ---------- */
+.tl{display:grid;gap:12px;margin-top:8px;}
+.tl-row{
+  display:grid;grid-template-columns:112px 1fr;gap:20px;align-items:start;
+  padding:18px 20px;border-radius:10px;background:var(--n0);border:1px solid var(--n30);
+}
+.tl-row.hot{border-color:var(--green);background:var(--green-10);}
+.tl-wk{font-weight:700;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:var(--green-70);padding-top:2px;}
+.tl-body h3{font-size:17px;margin-bottom:4px;}
+.tl-date{font-size:13px;color:var(--n70);font-weight:600;}
+.tl-owner{
+  display:inline-block;font-size:11px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+  padding:3px 8px;border-radius:4px;margin-left:8px;vertical-align:2px;
+}
+.own-you{background:var(--green-10);color:var(--green-70);border:1px solid var(--green-30);}
+.own-us{background:var(--purple-10);color:var(--purple-80);border:1px solid var(--purple-10);}
+.own-both{background:var(--warn-bg);color:var(--warn);border:1px solid #FFEAC4;}
+
+/* ---------- At-a-glance overview grid ---------- */
+.ov{overflow-x:auto;}
+.ov-grid{display:grid;gap:0;min-width:640px;align-items:center;}
+.ov-head{
+  font-size:11px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--n60);
+  padding:0 0 10px;text-align:center;border-bottom:1px solid var(--n30);
+}
+.ov-head.wk1{color:var(--green-70);}
+.ov-stage{
+  font-size:14px;font-weight:600;padding:9px 16px 9px 0;white-space:nowrap;
+  border-right:1px solid var(--n30);
+}
+.ov-cell{height:44px;border-right:1px solid var(--n20);}
+.ov-cell:last-child{border-right:none;}
+.ov-bar{
+  height:26px;border-radius:6px;display:flex;align-items:center;padding:0 12px;
+  font-size:12px;font-weight:700;letter-spacing:.03em;color:var(--n0);
+  margin:0 4px;overflow:hidden;
+}
+.bar-you{background:var(--green);}
+.bar-us{background:var(--purple-80);}
+.bar-both{background:var(--purple-40);color:var(--purple);}
+.ov-legend{display:flex;gap:22px;flex-wrap:wrap;margin-top:22px;font-size:12px;font-weight:600;color:var(--n70);}
+.ov-legend span{display:flex;align-items:center;gap:8px;}
+.ov-legend i{width:16px;height:8px;border-radius:3px;display:block;}
+.ov-miles{
+  display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:26px;
+}
+.ov-mile{
+  padding:14px 18px;border-radius:10px;background:var(--n0);border:1px solid var(--n30);
+  border-left:4px solid var(--green);
+}
+.ov-mile .k{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--n60);margin-bottom:4px;}
+.ov-mile .v{font-size:16px;font-weight:700;}
+.ov-mile .n{font-size:12px;color:var(--n70);margin-top:2px;}
+
+/* ---------- Data checklist ---------- */
+.data-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.data-col{border-radius:12px;padding:24px;border:1px solid var(--n30);background:var(--n0);}
+.data-col.req{border-color:var(--green);border-width:2px;}
+.data-col .tag{
+  display:inline-block;font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+  padding:4px 10px;border-radius:20px;margin-bottom:14px;
+}
+.tag-req{background:var(--green);color:var(--n0);}
+.tag-later{background:var(--n20);color:var(--n70);}
+.data-col ul{list-style:none;margin:0;padding:0;}
+.data-col li{padding:10px 0;border-bottom:1px solid var(--n20);font-size:15px;}
+.data-col li:last-child{border-bottom:none;}
+ul.data-two{
+  display:grid;grid-template-columns:1fr 1fr;gap:0 36px;margin-top:8px;
+}
+ul.data-two li:nth-last-child(2){border-bottom:none;}
+.data-col li b{font-weight:600;}
+.data-col li span{display:block;font-size:13px;color:var(--n70);margin-top:2px;}
+.due{
+  margin-top:16px;padding-top:14px;border-top:2px solid var(--n20);
+  font-size:14px;font-weight:600;
+}
+.due b{color:var(--green-70);}
+
+/* ---------- Callouts ---------- */
+.callout{
+  border-radius:10px;padding:18px 20px;font-size:15px;line-height:1.5;
+  border-left:4px solid var(--n40);background:var(--n10);
+}
+.callout.warn{background:var(--warn-bg);border-left-color:var(--warn);}
+.callout.info{background:var(--info-bg);border-left-color:var(--info);}
+.callout.green{background:var(--green-10);border-left-color:var(--green);}
+.callout b{display:block;margin-bottom:4px;}
+.callout p:last-child{margin-bottom:0;}
+
+/* ---------- Delay table ---------- */
+.delays{display:grid;gap:12px;}
+.delay{
+  display:grid;grid-template-columns:auto 1fr;gap:18px;align-items:start;
+  padding:18px 20px;border-radius:10px;background:var(--n0);border:1px solid var(--n30);
+}
+.delay .n{
+  width:34px;height:34px;border-radius:50%;background:var(--purple);color:var(--n0);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:15px;flex:none;
+}
+.delay h3{font-size:16px;margin-bottom:4px;}
+.delay p{font-size:14px;color:var(--n70);margin:0;}
+
+/* ---------- Escalation steps ---------- */
+.esc{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:20px;}
+.esc .step{padding:16px;border-radius:10px;background:var(--n0);border:1px solid var(--n30);text-align:center;}
+.esc .step.last{border-color:var(--err);background:var(--err-bg);}
+.esc .when{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--n60);margin-bottom:6px;}
+.esc .step.last .when{color:var(--err);}
+.esc .what{font-size:14px;font-weight:600;line-height:1.35;}
+
+/* ---------- Interactive checklist ---------- */
+.check{display:grid;grid-template-columns:1fr 1fr;gap:10px 28px;margin-top:8px;}
+.check label{
+  display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-radius:8px;
+  background:var(--n0);border:1px solid var(--n30);cursor:pointer;font-size:15px;
+  transition:all .15s ease;
+}
+.check label:hover{border-color:var(--green);}
+.check input{
+  appearance:none;-webkit-appearance:none;width:19px;height:19px;border:2px solid var(--n40);
+  border-radius:4px;flex:none;margin-top:1px;cursor:pointer;position:relative;transition:all .15s ease;
+}
+.check input:checked{background:var(--green);border-color:var(--green);}
+.check input:checked::after{
+  content:"";position:absolute;left:5px;top:1px;width:5px;height:10px;
+  border:solid #fff;border-width:0 2.5px 2.5px 0;transform:rotate(45deg);
+}
+.check input:checked + span{text-decoration:line-through;color:var(--n60);}
+.check .who{
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+  color:var(--n60);display:block;margin-top:3px;text-decoration:none !important;
+}
+
+/* ---------- Contact / people ---------- */
+.people{display:grid;grid-template-columns:1fr 1fr;gap:24px;}
+.person{display:flex;gap:16px;align-items:center;padding:18px 20px;border-radius:10px;background:var(--n0);border:1px solid var(--n30);}
+.avatar{
+  width:46px;height:46px;border-radius:50%;background:var(--green-10);color:var(--green-70);
+  display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;flex:none;
+}
+.avatar.p{background:var(--purple-10);color:var(--purple-80);}
+.person .nm{font-weight:600;font-size:16px;line-height:1.25;}
+.person .rl{font-size:13px;color:var(--n70);}
+
+/* ---------- Cover ---------- */
+.cover{justify-content:center;}
+.cover .logo{margin-bottom:48px;}
+.cover .meta{display:flex;gap:48px;flex-wrap:wrap;margin-top:44px;padding-top:32px;border-top:1px solid var(--purple-80);}
+.cover .meta div .k{font-size:12px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--purple-40);margin-bottom:6px;}
+.cover .meta div .v{font-size:19px;font-weight:600;}
+
+/* ---------- Footer logo ---------- */
+.slide-foot{position:absolute;bottom:28px;left:64px;display:flex;align-items:center;gap:14px;}
+.slide-foot .num{font-size:12px;font-weight:700;color:var(--n40);letter-spacing:.05em;}
+.dark .slide-foot .num{color:var(--purple-80);}
+
+/* ---------- Scroll hint ---------- */
+.hint{
+  position:absolute;bottom:26px;left:50%;transform:translateX(-50%);
+  font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:var(--purple-40);
+  display:flex;align-items:center;gap:8px;animation:bob 2.4s ease-in-out infinite;
+}
+@keyframes bob{0%,100%{transform:translateX(-50%) translateY(0);}50%{transform:translateX(-50%) translateY(6px);}}
+
+/* ---------- Responsive ---------- */
+@media (max-width:900px){
+  .slide{padding:56px 24px 88px;min-height:auto;}
+  .deck{scroll-snap-type:none;height:auto;overflow:visible;}
+  .g2,.g3,.g4,.commit,.data-grid,.people,.check,.ov-miles,ul.data-two{grid-template-columns:1fr;}
+  .esc{grid-template-columns:1fr 1fr;}
+  .tl-row{grid-template-columns:1fr;gap:8px;}
+  .slide-foot{left:24px;bottom:24px;}
+  .hint{display:none;}
+  h1{font-size:34px;}
+  h2{font-size:26px;}
+  .cover .meta{gap:28px;}
+}
+
+/* ---------- Print ---------- */
+@media print{
+  .deck{height:auto;overflow:visible;scroll-snap-type:none;}
+  .hint{display:none !important;}
+  .slide{min-height:auto;page-break-after:always;break-after:page;padding:32px 0;}
+  .slide.dark{background:#fff !important;color:var(--purple) !important;}
+  .slide.dark .lede,.slide.dark .muted{color:var(--n70) !important;}
+  .commit .ours{background:var(--n10) !important;color:var(--purple) !important;}
+  .commit .ours h3{color:var(--green-70) !important;}
+  .commit .ours li{border-bottom-color:var(--n30) !important;}
+  body{font-size:11pt;}
+  h1{font-size:26pt;} h2{font-size:19pt;}
+}
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     CONTENT CONFIG — edit this block to change the deck.
+     Everything customer-facing lives here. No need to touch
+     the HTML or CSS below to change copy, dates, or thresholds.
+
+     PERSONALIZE VIA URL PARAMETERS, e.g.
+       index.html?co=Acme%20Foods&owner=Jane%20Diaz&ipm=2026-09-15&track=custom
+       &spec=Sam%20Ortega
+
+     Parameters:
+       co      customer company name
+       owner   customer project owner name
+       ipm     Implementation Planning Meeting date, YYYY-MM-DD
+               (the legacy name "kickoff" still works)
+       track   "standard" (5 weeks) or "custom" (7 weeks)
+       spec    implementation specialist name
+       ae      account executive name
+     Any omitted parameter falls back to a generic placeholder.
+     ============================================================ -->
+<script>
+const CONFIG = {
+
+  /* ---- Thresholds. Change a number here and every date updates. ---- */
+  thresholds: {
+    dataDueBizDays: 5,            // after the IPM
+    configReviewBizDays: 5,       // after data lands
+    nudgeDays: [1, 3, 5],         // business days past the data due date
+    aeLoopInDays: 5,
+    pauseDays: 10,
+    responseHours: 24             // business hours
+  },
+
+  /* ---- Timeline tracks ----
+     `overview` drives the at-a-glance grid: from/to are week numbers.
+     `rows`     drives the week-by-week detail underneath it.       ---- */
+  tracks: {
+    standard: {
+      label: "Standard setup",
+      weeks: 5,
+      blurb: "Coast configured to our out-of-the-box maintenance workflows.",
+      overview: [
+        { name:"Implementation Planning Meeting", from:1, to:1, owner:"both" },
+        { name:"Your data",                       from:1, to:1, owner:"you"  },
+        { name:"Import and configuration",        from:2, to:2, owner:"us"   },
+        { name:"Review and revisions",            from:3, to:3, owner:"both" },
+        { name:"Training",                        from:4, to:4, owner:"both" },
+        { name:"Go-Live Week",                    from:5, to:5, owner:"you"  }
+      ],
+      rows: [
+        { wk:"Week 1", title:"Planning meeting and data", owner:"both",
+          body:"We meet, agree your launch date, and you send the data we need to start building.", milestone:"data" },
+        { wk:"Week 2", title:"Import and configuration", owner:"us",
+          body:"We load your data and configure your workflows." },
+        { wk:"Week 3", title:"Review and revisions", owner:"both",
+          body:"You review the configured account, we make adjustments, and we book your training sessions." },
+        { wk:"Week 4", title:"Training", owner:"both",
+          body:"Live sessions for your admins and your wider team." },
+        { wk:"Week 5", title:"Go-Live Week and Launch Review", owner:"both",
+          body:"You use Coast for real work and log questions. We close out on the Launch Review call.", milestone:"launchReview" }
+      ]
+    },
+    custom: {
+      label: "Custom configuration",
+      weeks: 7,
+      blurb: "Coast configured to workflows, automations, or integrations specific to your operation.",
+      overview: [
+        { name:"Implementation Planning Meeting", from:1, to:1, owner:"both" },
+        { name:"Your data",                       from:1, to:1, owner:"you"  },
+        { name:"Import and configuration",        from:2, to:3, owner:"us"   },
+        { name:"Review and revisions",            from:4, to:5, owner:"both" },
+        { name:"Training",                        from:6, to:6, owner:"both" },
+        { name:"Go-Live Week",                    from:7, to:7, owner:"you"  }
+      ],
+      rows: [
+        { wk:"Week 1", title:"Planning meeting and data", owner:"both",
+          body:"We meet, confirm your custom requirements, agree your launch date, and you send the data we need to start building.", milestone:"data" },
+        { wk:"Week 2", title:"Import and build begins", owner:"us",
+          body:"We load your data and start configuration." },
+        { wk:"Week 3", title:"Configuration build", owner:"us",
+          body:"We build your custom workflows, automations, and any integrations." },
+        { wk:"Week 4", title:"First review", owner:"both",
+          body:"You walk through the configured account with your specialist and flag changes." },
+        { wk:"Week 5", title:"Revisions and sign-off", owner:"both",
+          body:"We apply your changes and you confirm the configuration is ready for training." },
+        { wk:"Week 6", title:"Training", owner:"both",
+          body:"Live sessions for your admins and your wider team." },
+        { wk:"Week 7", title:"Go-Live Week and Launch Review", owner:"both",
+          body:"You use Coast for real work and log questions. We close out on the Launch Review call.", milestone:"launchReview" }
+      ]
+    }
+  },
+
+  /* ---- Data collection. One deadline. Exactly which of these
+          applies is confirmed at the IPM.                    ---- */
+  dataItems: [
+    { n:"Users",           d:"Full name, email address, and mobile number for everyone who needs access" },
+    { n:"Locations",       d:"Sites, buildings, and areas — including which sit inside which" },
+    { n:"Assets",          d:"Equipment and vehicles you maintain, and the location each one sits at" },
+    { n:"Parts inventory", d:"Spare parts and materials, with starting quantities and reorder points" },
+    { n:"PM schedules",    d:"Recurring maintenance, how often each runs, and which asset it covers" },
+    { n:"PM checklists",   d:"The step-by-step lists that go with each PM" },
+    { n:"Vendors",         d:"External service providers and suppliers you work with" }
+  ],
+
+  /* ---- Delays ---- */
+  delays: [
+    { t:"Data arrives late or incomplete",
+      d:"This is the single biggest cause of delay. Configuration cannot start without it — your data is what gives your workflows context." },
+    { t:"No single owner on your side",
+      d:"When the project belongs to everyone, it belongs to no one. We name one person at the planning meeting who we work with throughout." },
+    { t:"Training attendees not confirmed",
+      d:"Sessions get rescheduled when the right people aren't booked in advance. We lock in names and times during week 3." }
+  ],
+
+  /* ---- Links ---- */
+  links: {
+    template: "#",              // <-- data collection template
+    help: "https://help.coastapp.com"
+  }
+};
+</script>
+
+<div class="deck" id="deck">
+
+<!-- 1. COVER -->
+<section class="slide dark cover" id="s1" data-label="Welcome">
+  <div class="slide-inner">
+    <div class="logo">
+      <svg width="150" height="42" viewBox="0 0 165 46" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Coast">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M78.379 30.2971C76.0894 33.0967 73.0679 34.4965 69.3151 34.4965C65.9123 34.4965 63.0818 33.4467 60.8236 31.3469C58.5974 29.2473 57.4844 26.4798 57.4844 23.044C57.4844 19.5765 58.5974 16.777 60.8236 14.6774C63.0499 12.5461 65.8169 11.4963 69.1561 11.4963C72.8135 11.4963 75.7713 12.8961 78.0291 15.6953L74.8489 18.9403C73.545 17.0632 71.3824 15.9181 68.9335 15.9181C67.1842 15.9181 65.6576 16.5543 64.322 17.8267C63.018 19.0675 62.3501 20.7852 62.3501 22.9485C62.3501 25.1436 63.018 26.8932 64.322 28.1658C65.626 29.4382 67.2479 30.0744 69.1877 30.0744C71.7004 30.0744 73.7038 29.0246 75.2305 26.9567L78.379 30.2971Z" fill="#FFFFFF"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M86.8063 28.0068C88.0148 29.3747 89.6368 30.0428 91.7039 30.0428C93.7075 30.0428 95.3297 29.3747 96.5065 28.0068C97.7148 26.6389 98.3189 24.9848 98.3189 22.9805C98.3189 21.0402 97.6831 19.3856 96.4427 18.018C95.2023 16.6501 93.6441 15.9503 91.7039 15.9503C89.6687 15.9503 88.0467 16.6182 86.8063 17.9861C85.5978 19.3539 84.9936 21.0083 84.9936 22.9805C84.9936 24.9848 85.5978 26.6389 86.8063 28.0068ZM83.4351 14.7731C85.6296 12.578 88.3646 11.4966 91.5769 11.4966C94.8207 11.4966 97.5559 12.578 99.7821 14.7731C102.008 16.9363 103.121 19.672 103.121 22.9805C103.121 26.3208 102.008 29.0566 99.7821 31.2516C97.5559 33.415 94.8207 34.4965 91.5769 34.4965C88.3646 34.4965 85.6296 33.415 83.4351 31.2516C81.2406 29.0566 80.1278 26.3208 80.1278 22.9805C80.1278 19.672 81.2406 16.9363 83.4351 14.7731Z" fill="#FFFFFF"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M114.061 18.2723L111.294 25.5573H116.828L114.061 18.2723ZM116.319 11.8464L125.033 34.1465H120.135L118.354 29.7564H109.736L107.987 34.1465H103.089L111.803 11.8464H116.319Z" fill="#FFFFFF"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M134.125 24.921C129.768 24.1893 127.097 21.9307 127.097 18.2406C127.097 16.1727 127.892 14.5505 129.514 13.3414C131.136 12.1006 133.076 11.4963 135.334 11.4963C138.8 11.4963 141.662 12.6733 143.921 15.0593L140.74 18.3996C139.055 16.6815 137.178 15.8229 135.079 15.8229C133.076 15.8229 131.804 16.7134 131.804 18.0179C131.804 19.1949 132.853 19.9901 134.984 20.372L137.178 20.7218C142.171 21.5171 144.684 23.8393 144.684 27.6887C144.684 29.7247 143.857 31.3788 142.235 32.6195C140.613 33.8602 138.482 34.4965 135.811 34.4965C131.899 34.4965 128.56 32.7466 126.556 30.2335L129.8 26.957C131.454 29.0882 133.553 30.1699 136.097 30.1699C138.514 30.1699 139.977 29.152 139.977 27.7522C139.977 26.5751 138.927 25.78 136.86 25.3981L134.125 24.921Z" fill="#FFFFFF"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M146.852 11.8464H164.344V16.2046H157.951V34.1465H153.245V16.2046H146.852V11.8464Z" fill="#FFFFFF"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M30.6055 26.7522C29.2209 29.5573 26.3333 31.4877 22.9939 31.4877C19.6547 31.4877 16.7674 29.5573 15.3825 26.7522H9.48785C11.1288 32.6734 16.552 37.0217 22.9939 37.0217C29.4361 37.0217 34.8595 32.6734 36.5002 26.7522H30.6055Z" fill="#00CAAC"/>
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M40.0696 26.7522C38.3521 34.6067 31.3613 40.4882 22.9937 40.4882C13.338 40.4882 5.51031 32.6586 5.51031 23.0001C5.51031 13.3416 13.338 5.5118 22.9937 5.5118C31.3613 5.5118 38.3521 11.3933 40.0696 19.2478H45.6811C43.8899 8.33035 34.4153 0 22.9937 0C10.2947 0 0 10.2975 0 23.0001C0 35.7025 10.2947 46 22.9937 46C34.4153 46 43.8899 37.6699 45.6811 26.7522H40.0696Z" fill="#00CAAC"/>
+      </svg>
+    </div>
+    <p class="eyebrow">Implementation</p>
+    <h1>Your Coast<br>implementation</h1>
+    <p class="lede">What happens next, when it happens, and what we need from you. Everything in this guide is designed to get you live and working — not just set up.</p>
+    <div class="meta">
+      <div><div class="k">Prepared for</div><div class="v" data-fill="company">Your team</div></div>
+      <div id="ownerMeta" hidden><div class="k">Project owner</div><div class="v" data-fill="owner"></div></div>
+      <div><div class="k">Your specialist</div><div class="v" data-fill="spec">Your Coast implementation specialist</div></div>
+      <div><div class="k">Planning meeting</div><div class="v" data-fill="ipmDate">To be scheduled</div></div>
+      <div><div class="k">Target launch</div><div class="v" data-fill="launchDate">—</div></div>
+    </div>
+  </div>
+  <div class="hint">Scroll ↓</div>
+</section>
+
+<!-- 2. MUTUAL COMMITMENT -->
+<section class="slide" id="s2" data-label="How we work together">
+  <div class="slide-inner">
+    <p class="eyebrow">How we work together</p>
+    <h2>Implementation is a two-way project</h2>
+    <p class="lede" style="margin-bottom:36px;">We can build fast, but only against real information about how you work. Here is what each side is signing up for.</p>
+    <div class="commit">
+      <div class="col ours">
+        <h3>Coast commits to</h3>
+        <ul>
+          <li><b>A named specialist</b>One person who knows your account from planning meeting to launch.</li>
+          <li><b>A reply within <span data-fill="responseHours">24</span> business hours</b>Every email, every time.</li>
+          <li><b>Configuration in <span data-fill="configDays">5</span> business days</b>Ready for your review, measured from the day your data lands.</li>
+          <li><b>We import your data for you</b>You send it, we load it. No manual entry on your side.</li>
+          <li><b>A live account in <span data-fill="weeks">5</span> weeks</b>From planning meeting to Launch Review.</li>
+        </ul>
+      </div>
+      <div class="col yours">
+        <h3>We need from you</h3>
+        <ul>
+          <li><b>One project owner</b>A single person we work with. Named at the planning meeting.</li>
+          <li><b>Your data by <span data-fill="dataDue">the agreed date</span></b>Everything we agree you need for your workflows. We cannot start configuring without it.</li>
+          <li><b>A review within a week</b>Someone who knows your operation walks the configured account and tells us what to change.</li>
+          <li><b>Confirmed training attendees</b>Names and times locked in, not decided on the day.</li>
+          <li><b>A week of real use</b>Your team uses Coast on live work before we close out.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="slide-foot"><span class="num">02</span></div>
+</section>
+
+<!-- 3. AT-A-GLANCE OVERVIEW -->
+<section class="slide grey" id="s3" data-label="The whole plan">
+  <div class="slide-inner">
+    <p class="eyebrow">The whole plan · <span data-fill="trackLabel">Standard setup</span></p>
+    <h2><span data-fill="weeks">5</span> weeks from planning meeting to live</h2>
+    <div class="ov mt-s">
+      <div class="ov-grid" id="ovGrid"></div>
+    </div>
+    <div class="ov-legend">
+      <span><i class="bar-you"></i> Your action</span>
+      <span><i class="bar-us"></i> Coast's action</span>
+      <span><i class="bar-both"></i> Together</span>
+    </div>
+    <div class="ov-miles" id="ovMiles"></div>
+  </div>
+  <div class="slide-foot"><span class="num">03</span></div>
+</section>
+
+<!-- 3b. WEEK BY WEEK -->
+<section class="slide" id="s3b" data-label="Week by week">
+  <div class="slide-inner">
+    <p class="eyebrow">Week by week</p>
+    <h2>What happens when</h2>
+    <p class="lede" style="margin-bottom:24px;" data-fill="trackBlurb">Coast configured to our out-of-the-box maintenance workflows.</p>
+    <div class="tl" id="timeline"></div>
+    <p class="xs muted mt-s"><span class="tl-owner own-you">You</span> your action &nbsp; <span class="tl-owner own-us">Coast</span> our action &nbsp; <span class="tl-owner own-both">Together</span> joint</p>
+  </div>
+  <div class="slide-foot"><span class="num">04</span></div>
+</section>
+
+<!-- 4. BEFORE KICKOFF -->
+<section class="slide" id="s4" data-label="Before we meet">
+  <div class="slide-inner">
+    <p class="eyebrow">Stage 0</p>
+    <h2>Before your planning meeting</h2>
+    <p class="lede" style="margin-bottom:32px;">Most of this is already done. Your account executive books the planning meeting before handing you over, so there is no gap between signing and starting.</p>
+    <div class="grid g3">
+      <div class="card card-accent">
+        <h4>Already handled</h4>
+        <ul class="sm" style="padding-left:18px;margin:0;">
+          <li>Your agreement is signed</li>
+          <li>Your planning meeting is booked</li>
+          <li>Your specialist has your requirements</li>
+        </ul>
+      </div>
+      <div class="card card-accent">
+        <h4>Bring to the call</h4>
+        <ul class="sm" style="padding-left:18px;margin:0;">
+          <li>The person who will own this project</li>
+          <li>Whoever knows your assets and sites best</li>
+          <li>Any deadline you are working to</li>
+        </ul>
+      </div>
+      <div class="card card-accent">
+        <h4>Helpful, not required</h4>
+        <ul class="sm" style="padding-left:18px;margin:0;">
+          <li>Existing asset or equipment lists</li>
+          <li>Your current maintenance schedules</li>
+          <li>Any system you are moving off</li>
+        </ul>
+      </div>
+    </div>
+    <div class="callout green mt">
+      <b>Your requirements came with you.</b>
+      <p>Everything you discussed during the sales process — the workflows you need, the way your team is structured, anything custom — was passed to your implementation specialist. You will not be starting the conversation over.</p>
+    </div>
+  </div>
+  <div class="slide-foot"><span class="num">04</span></div>
+</section>
+
+<!-- 5. KICKOFF -->
+<section class="slide tint" id="s5" data-label="Planning meeting">
+  <div class="slide-inner">
+    <p class="eyebrow">Stage 1 · Week 1</p>
+    <h2>The Implementation Planning Meeting</h2>
+    <p class="lede" style="margin-bottom:32px;">One hour with your specialist — the IPM. We confirm what you need Coast to do, walk your account, agree exactly which data we need, and set the dates that everything else hangs off.</p>
+    <div class="grid g2">
+      <div class="card">
+        <h4>What we cover</h4>
+        <ul class="sm" style="padding-left:18px;margin:0;">
+          <li>Your objectives and how your team works today</li>
+          <li>The workflows you need Coast to support</li>
+          <li>Who needs access, and at what permission level</li>
+          <li>A walkthrough of your account</li>
+          <li>Exactly which data your workflows need, and how to send it</li>
+        </ul>
+      </div>
+      <div class="card" style="border-color:var(--green);border-width:2px;">
+        <h4 style="color:var(--green-70);">Four things we decide live</h4>
+        <ol class="sm" style="padding-left:18px;margin:0;">
+          <li style="margin-bottom:8px;"><b>Your project owner</b> — the one person we work with throughout</li>
+          <li style="margin-bottom:8px;"><b>The data you're sending</b> — confirmed against your workflows, not a generic list</li>
+          <li style="margin-bottom:8px;"><b>Your data due date</b> — set on the call, not emailed afterward</li>
+          <li><b>Your target launch date</b> — the date we both work back from</li>
+        </ol>
+      </div>
+    </div>
+    <div class="callout info mt">
+      <b>We fill in the first few rows together.</b>
+      <p>Before the call ends, we open the data template and complete the first entries with you, so the format is never a guess.</p>
+    </div>
+  </div>
+  <div class="slide-foot"><span class="num">05</span></div>
+</section>
+
+<!-- 6. DATA COLLECTION -->
+<section class="slide" id="s6" data-label="Data collection">
+  <div class="slide-inner">
+    <p class="eyebrow">Stage 2 · Week 1</p>
+    <h2>Sending us your data</h2>
+    <p class="lede" style="margin-bottom:20px;">This is the step that decides whether you launch on time. Your data is what gives your workflows context — we cannot configure your account without it, and we import all of it for you.</p>
+    <div class="data-col req" style="padding:26px 28px;">
+      <span class="tag tag-req">Due <span data-fill="dataDue">end of week 1</span></span>
+      <p class="sm" style="margin:0 0 4px;"><b>Everything your workflows need, in one send.</b> We confirm exactly which of these applies to you at your planning meeting — you will not be guessing.</p>
+      <ul id="dataItems" class="data-two"></ul>
+    </div>
+    <div class="grid g2 mt-s" style="gap:16px;">
+      <div class="callout green">
+        <b>Use our template.</b>
+        <p>It is formatted to import cleanly, with help text and an example row on every tab. <a data-fill-href="template" href="#">Download the data template →</a></p>
+      </div>
+      <div class="callout warn">
+        <b>Custom workflows may need more.</b>
+        <p>If your setup includes workflows, automations, or integrations beyond the standard, your specialist will confirm what else is needed at the planning meeting — and it comes in with the same deadline.</p>
+      </div>
+    </div>
+  </div>
+  <div class="slide-foot"><span class="num">06</span></div>
+</section>
+
+<!-- 7. IF DATA IS LATE -->
+<section class="slide grey" id="s7" data-label="If data is late">
+  <div class="slide-inner">
+    <p class="eyebrow">Being straight with you</p>
+    <h2>What happens if data is late</h2>
+    <p class="lede" style="margin-bottom:8px;">No surprises. If your data slips, your launch date slips with it — here is exactly what that looks like.</p>
+    <div class="esc">
+      <div class="step">
+        <div class="when">Due date + 1 day</div>
+        <div class="what">A friendly check-in from your specialist</div>
+      </div>
+      <div class="step">
+        <div class="when">+ 3 days</div>
+        <div class="what">A second follow-up, by email and phone</div>
+      </div>
+      <div class="step">
+        <div class="when">+ 5 days</div>
+        <div class="what">Your account executive is looped in to help unblock</div>
+      </div>
+      <div class="step last">
+        <div class="when">+ 10 days</div>
+        <div class="what">Implementation is paused until data arrives</div>
+      </div>
+    </div>
+    <div class="callout mt">
+      <b>Pausing is not cancelling.</b>
+      <p>A paused implementation can restart whenever you are ready. We pause so your specialist's time goes to customers who are actively moving, and so we are honest with you about where the project stands rather than quietly letting it drift.</p>
+    </div>
+    <p class="sm muted mt-s">Configuration timelines shift day for day with late data. If your data arrives a week late, your launch moves by a week.</p>
+  </div>
+  <div class="slide-foot"><span class="num">07</span></div>
+</section>
+
+<!-- 8. CONFIGURATION -->
+<section class="slide" id="s8" data-label="Configuration">
+  <div class="slide-inner">
+    <p class="eyebrow">Stage 3</p>
+    <h2>Building your account</h2>
+    <p class="lede" style="margin-bottom:32px;">We import your data and configure Coast around the way your team actually works. You review it before anyone gets trained on it.</p>
+    <div class="grid g2">
+      <div class="card">
+        <h4>Standard setup</h4>
+        <p class="sm" style="margin-bottom:12px;">Our out-of-the-box maintenance configuration:</p>
+        <ul class="sm" style="padding-left:18px;margin:0;">
+          <li>Work orders and requests</li>
+          <li>Assets, locations, and parts</li>
+          <li>Preventive maintenance schedules</li>
+          <li>Checklists and procedures</li>
+          <li>Users, roles, and permissions</li>
+        </ul>
+      </div>
+      <div class="card" style="background:var(--purple);color:var(--n0);border-color:var(--purple);">
+        <h4 style="color:var(--green);">Custom configuration</h4>
+        <p class="sm" style="margin-bottom:12px;color:var(--purple-10);">Where most of our customers land. Adds:</p>
+        <ul class="sm" style="padding-left:18px;margin:0;color:var(--purple-10);">
+          <li>Workflows shaped to your process</li>
+          <li>Automations and notifications</li>
+          <li>Integrations with your other systems</li>
+          <li>Custom fields, views, and dashboards</li>
+        </ul>
+        <p class="xs mt-s" style="color:var(--purple-40);margin:12px 0 0;">Scope is confirmed at your planning meeting.</p>
+      </div>
+    </div>
+    <div class="callout info mt">
+      <b>You review before we train.</b>
+      <p>We walk you through the configured account and change what needs changing. It is much cheaper to fix a workflow before twenty people have learned it.</p>
+    </div>
+  </div>
+  <div class="slide-foot"><span class="num">08</span></div>
+</section>
+
+<!-- 9. TRAINING -->
+<section class="slide tint" id="s9" data-label="Training">
+  <div class="slide-inner">
+    <p class="eyebrow">Stage 4</p>
+    <h2>Training your team</h2>
+    <p class="lede" style="margin-bottom:32px;">Two sessions, built around what each group actually needs to do. Live, recorded, and yours to keep.</p>
+    <div class="grid g2">
+      <div class="card card-accent">
+        <h3>Session 1 — Admins</h3>
+        <p class="sm muted" style="margin-bottom:12px;">Your project owner and anyone managing Coast day to day.</p>
+        <p class="sm" style="margin:0;"><b>Afterwards they can:</b> create and assign work orders, manage assets and parts, adjust PM schedules, add users, and pull reports.</p>
+      </div>
+      <div class="card card-accent">
+        <h3>Session 2 — Your team</h3>
+        <p class="sm muted" style="margin-bottom:12px;">Technicians and anyone completing or requesting work.</p>
+        <p class="sm" style="margin:0;"><b>Afterwards they can:</b> pick up assigned work, complete checklists, log parts used, submit requests, and update work from their phone.</p>
+      </div>
+    </div>
+    <div class="callout green mt">
+      <b>We book your Launch Review during this session.</b>
+      <p>Before training ends, we put a date in the calendar for a week's time. Questions always come up once people start using Coast for real, and that call is where we handle them.</p>
+    </div>
+  </div>
+  <div class="slide-foot"><span class="num">09</span></div>
+</section>
+
+<!-- 10. GO-LIVE WEEK -->
+<section class="slide" id="s10" data-label="Go-Live Week">
+  <div class="slide-inner">
+    <p class="eyebrow">Stage 5 · Final week</p>
+    <h2>Go-Live Week</h2>
+    <p class="lede" style="margin-bottom:32px;">Training is not the finish line. Your team uses Coast on real work for a week, and then we sit down together and fix whatever came up.</p>
+    <div class="grid g3">
+      <div class="card card-accent">
+        <h3>During the week</h3>
+        <p class="sm" style="margin:0;">Your team runs live work through Coast. Real work orders, real assets, real people. Everything else stays as-is until you are confident.</p>
+      </div>
+      <div class="card card-accent">
+        <h3>Keep a running list</h3>
+        <p class="sm" style="margin:0;">Anything that feels wrong, missing, or confusing — write it down as it happens. Your specialist will set up somewhere to collect these.</p>
+      </div>
+      <div class="card card-accent">
+        <h3>The Launch Review</h3>
+        <p class="sm" style="margin:0;">We go through your list together, make the tweaks, confirm everything is set up correctly, and answer whatever is still open.</p>
+      </div>
+    </div>
+    <div class="callout green mt">
+      <b>Your implementation is complete after the Launch Review.</b>
+      <p>Not after training. We close out once you have used Coast on real work and told us it is doing what you need. From there you move to ongoing support and regular check-ins.</p>
+    </div>
+  </div>
+  <div class="slide-foot"><span class="num">10</span></div>
+</section>
+
+<!-- 11. PHASED -->
+<section class="slide grey" id="s11" data-label="Phased rollouts">
+  <div class="slide-inner">
+    <p class="eyebrow">If this applies to you</p>
+    <h2>Phased implementations</h2>
+    <p class="lede" style="margin-bottom:32px;">Some operations are too complex to bring live all at once. When that is the case, we split the work into phases and get you using Coast sooner rather than waiting for everything to be perfect.</p>
+    <div class="grid g2">
+      <div class="card">
+        <h3>Phase 1</h3>
+        <p class="sm" style="margin:0;">Gets you live and working on your core workflows — usually work orders, assets, and preventive maintenance. This is what the timeline in this guide covers.</p>
+      </div>
+      <div class="card">
+        <h3>Later phases</h3>
+        <p class="sm" style="margin:0;">Additional sites, departments, integrations, or workflows, each scoped and scheduled separately once Phase 1 is live and your team is comfortable.</p>
+      </div>
+    </div>
+    <div class="callout warn mt">
+      <b>The timeline in this guide applies to Phase 1.</b>
+      <p>If your implementation is phased, the <span data-fill="weeks">5</span>-week schedule covers getting Phase 1 live. Your specialist will give you a separate plan covering what lands in each phase and when. Phasing is confirmed at your planning meeting.</p>
+    </div>
+  </div>
+  <div class="slide-foot"><span class="num">11</span></div>
+</section>
+
+<!-- 12. WHAT SLOWS THINGS DOWN -->
+<section class="slide" id="s12" data-label="What slows things down">
+  <div class="slide-inner">
+    <p class="eyebrow">Learned the hard way</p>
+    <h2>What slows implementations down</h2>
+    <p class="lede" style="margin-bottom:28px;">Three things account for nearly every delayed implementation we have run. All three are avoidable.</p>
+    <div class="delays" id="delays"></div>
+  </div>
+  <div class="slide-foot"><span class="num">12</span></div>
+</section>
+
+<!-- 13. CHECKLIST -->
+<section class="slide tint" id="s13" data-label="Your checklist">
+  <div class="slide-inner">
+    <p class="eyebrow">Everything in one place</p>
+    <h2>Your checklist</h2>
+    <p class="lede" style="margin-bottom:24px;">Every action on your side, in order. Tick them off as you go — this page remembers.</p>
+    <div class="check" id="checklist"></div>
+    <p class="xs muted mt-s">Ticks are saved in this browser only. They are not visible to Coast.</p>
+  </div>
+  <div class="slide-foot"><span class="num">13</span></div>
+</section>
+
+<!-- 14. CONTACTS -->
+<section class="slide dark" id="s14" data-label="Questions">
+  <div class="slide-inner">
+    <p class="eyebrow">Questions</p>
+    <h2>Who to talk to</h2>
+    <div class="people mt" style="margin-bottom:32px;">
+      <div class="person" style="background:var(--purple-90);border-color:var(--purple-80);">
+        <div class="avatar" data-fill="specInitials">C</div>
+        <div>
+          <div class="nm" style="color:var(--n0);" data-fill="spec">Your implementation specialist</div>
+          <div class="rl" style="color:var(--purple-40);">Implementation specialist · anything about setup, data, or training</div>
+        </div>
+      </div>
+      <div class="person" style="background:var(--purple-90);border-color:var(--purple-80);">
+        <div class="avatar p">?</div>
+        <div>
+          <div class="nm" style="color:var(--n0);">Coast Support</div>
+          <div class="rl" style="color:var(--purple-40);">How-to questions any time · <a href="https://help.coastapp.com">help.coastapp.com</a></div>
+        </div>
+      </div>
+    </div>
+    <div class="grid g2">
+      <div class="card">
+        <h4 style="color:var(--green);">Response times</h4>
+        <p class="sm" style="margin:0;color:var(--purple-10);">Your specialist replies within <span data-fill="responseHours">24</span> business hours to every email. If something is urgent, say so in the subject line.</p>
+      </div>
+      <div class="card">
+        <h4 style="color:var(--green);">Help centre</h4>
+        <p class="sm" style="margin:0;color:var(--purple-10);">Step-by-step articles on everything in Coast, available to your whole team from day one at <a href="https://help.coastapp.com">help.coastapp.com</a>.</p>
+      </div>
+    </div>
+    <p class="lede mt" style="color:var(--green);font-weight:600;">We are looking forward to getting you live.</p>
+  </div>
+  <div class="slide-foot"><span class="num">14</span></div>
+</section>
+
+</div><!-- /deck -->
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- URL parameters ---------- */
+  const P = new URLSearchParams(location.search);
+  const get = (k, fallback) => (P.get(k) || "").trim() || fallback;
+
+  const trackKey = (get("track","standard").toLowerCase() === "custom") ? "custom" : "standard";
+  const track = CONFIG.tracks[trackKey];
+  const T = CONFIG.thresholds;
+
+  /* ---------- Business-day date math ---------- */
+  function parseDate(s){
+    if(!s) return null;
+    const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(s.trim());
+    if(!m) return null;
+    const d = new Date(+m[1], +m[2]-1, +m[3]);
+    return isNaN(d) ? null : d;
+  }
+  function addBizDays(date, n){
+    const d = new Date(date.getTime());
+    let added = 0;
+    while(added < n){
+      d.setDate(d.getDate()+1);
+      const day = d.getDay();
+      if(day !== 0 && day !== 6) added++;
+    }
+    return d;
+  }
+  function fmt(d){
+    if(!d) return null;
+    return d.toLocaleDateString("en-US",{weekday:"short", month:"short", day:"numeric"});
+  }
+
+  // "ipm" is the current parameter name; "kickoff" kept as a legacy alias.
+  const ipm = parseDate(get("ipm","") || get("kickoff",""));
+  const dates = {};
+  if(ipm){
+    dates.ipm          = ipm;
+    dates.data         = addBizDays(ipm, T.dataDueBizDays);
+    dates.launchReview = addBizDays(ipm, track.weeks * 5);
+  }
+
+  /* ---------- Values available to the page ---------- */
+  const spec = get("spec","");
+  const V = {
+    company:          get("co","Your team"),
+    owner:            get("owner",""),
+    ae:               get("ae",""),
+    spec:             spec || "Your Coast implementation specialist",
+    specInitials:     spec ? spec.split(/\s+/).map(w=>w[0]).join("").slice(0,2).toUpperCase() : "C",
+    ipmDate:          fmt(dates.ipm) || "To be scheduled",
+    launchDate:       fmt(dates.launchReview) || (track.weeks + " weeks from the IPM"),
+    dataDue:          fmt(dates.data) || "end of week 1",
+    weeks:            String(track.weeks),
+    trackLabel:       track.label,
+    trackBlurb:       track.blurb,
+    responseHours:    String(T.responseHours),
+    configDays:       String(T.configReviewBizDays)
+  };
+
+  document.querySelectorAll("[data-fill]").forEach(el=>{
+    const k = el.getAttribute("data-fill");
+    if(V[k] != null) el.textContent = V[k];
+  });
+  document.querySelectorAll("[data-fill-href]").forEach(el=>{
+    const k = el.getAttribute("data-fill-href");
+    if(CONFIG.links[k]) el.setAttribute("href", CONFIG.links[k]);
+  });
+
+  if(V.owner) document.getElementById("ownerMeta").hidden = false;
+  if(P.get("co")) document.title = V.company + " · Coast Implementation";
+
+  /* ---------- At-a-glance overview grid ---------- */
+  const ownerLabel = {you:"You", us:"Coast", both:"Together"};
+  const ownerClass = {you:"own-you", us:"own-us", both:"own-both"};
+  const barClass   = {you:"bar-you", us:"bar-us", both:"bar-both"};
+
+  const ov = document.getElementById("ovGrid");
+  const W = track.weeks;
+  ov.style.gridTemplateColumns = "minmax(150px, auto) repeat(" + W + ", minmax(72px, 1fr))";
+
+  let cells = ['<div class="ov-head" style="text-align:left;"></div>'];
+  for(let w = 1; w <= W; w++){
+    cells.push(`<div class="ov-head${w===1?" wk1":""}">Week ${w}</div>`);
+  }
+  track.overview.forEach(st=>{
+    cells.push(`<div class="ov-stage">${st.name}</div>`);
+    for(let w = 1; w <= W; w++){
+      if(w === st.from){
+        const span = st.to - st.from + 1;
+        cells.push(
+          `<div class="ov-cell" style="grid-column: span ${span};">
+             <div class="ov-bar ${barClass[st.owner]}">${ownerLabel[st.owner]}</div>
+           </div>`
+        );
+      } else if(w < st.from || w > st.to){
+        cells.push('<div class="ov-cell"></div>');
+      }
+    }
+  });
+  ov.innerHTML = cells.join("");
+
+  /* ---------- Overview milestones ---------- */
+  document.getElementById("ovMiles").innerHTML = [
+    { k:"Planning meeting", v:V.ipmDate,   n:"Week 1 — we agree the plan and your dates" },
+    { k:"Your data due",    v:V.dataDue,   n:"Configuration cannot start without it" },
+    { k:"Launch Review",    v:V.launchDate, n:`End of week ${W} — implementation complete` }
+  ].map(m=>`<div class="ov-mile"><div class="k">${m.k}</div><div class="v">${m.v}</div><div class="n">${m.n}</div></div>`).join("");
+
+  /* ---------- Week-by-week timeline ---------- */
+  const tl = document.getElementById("timeline");
+  tl.innerHTML = track.rows.map((r,i)=>{
+    const ms = r.milestone && dates[r.milestone] ? fmt(dates[r.milestone]) : null;
+    const msLabel = r.milestone === "data" ? "Your data due"
+                  : r.milestone === "launchReview" ? "Launch Review" : "";
+    return `<div class="tl-row${i===0?" hot":""}">
+      <div class="tl-wk">${r.wk}</div>
+      <div class="tl-body">
+        <h3>${r.title}<span class="tl-owner ${ownerClass[r.owner]}">${ownerLabel[r.owner]}</span></h3>
+        <p class="sm muted" style="margin:0 0 2px;">${r.body}</p>
+        ${ms ? `<div class="tl-date">${msLabel}: ${ms}</div>` : ""}
+      </div>
+    </div>`;
+  }).join("");
+
+  /* ---------- Data list ---------- */
+  document.getElementById("dataItems").innerHTML =
+    CONFIG.dataItems.map(i=>`<li><b>${i.n}</b><span>${i.d}</span></li>`).join("");
+
+  /* ---------- Delays ---------- */
+  document.getElementById("delays").innerHTML = CONFIG.delays.map((d,i)=>
+    `<div class="delay"><div class="n">${i+1}</div><div><h3>${d.t}</h3><p>${d.d}</p></div></div>`
+  ).join("");
+
+  /* ---------- Checklist ---------- */
+  const CHECKLIST = [
+    { t:"Name your project owner",                                  w:"Planning meeting" },
+    { t:"Agree your data due date and target launch date",          w:"Planning meeting" },
+    { t:"Send us your data",                                        w:"Due " + V.dataDue },
+    { t:"Review your configured account and flag changes",          w:"After configuration" },
+    { t:"Confirm who attends each training session",                w:"Before training" },
+    { t:"Attend both training sessions",                            w:"Training week" },
+    { t:"Book your Launch Review",                                  w:"During training" },
+    { t:"Use Coast on real work for a week",                        w:"Go-Live Week" },
+    { t:"Keep a running list of questions and tweaks",              w:"Go-Live Week" },
+    { t:"Attend your Launch Review",                                w:"End of Go-Live Week" }
+  ];
+  const KEY = "coast-impl-checklist-" + (P.get("co") || "generic");
+  let saved = {};
+  try { saved = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch(e){ saved = {}; }
+
+  const cl = document.getElementById("checklist");
+  cl.innerHTML = CHECKLIST.map((c,i)=>
+    `<label><input type="checkbox" data-i="${i}"${saved[i] ? " checked" : ""}>
+      <span>${c.t}<span class="who">${c.w}</span></span></label>`
+  ).join("");
+
+  cl.addEventListener("change", e=>{
+    if(e.target.type !== "checkbox") return;
+    saved[e.target.dataset.i] = e.target.checked;
+    try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch(err){ /* private mode */ }
+  });
+
+  /* ---------- Slide numbering ---------- */
+  const slides = Array.from(document.querySelectorAll(".slide"));
+
+  // Footer numbers follow slide order, so adding or removing a slide needs no renumbering.
+  slides.forEach((s,i)=>{
+    const n = s.querySelector(".slide-foot .num");
+    if(n) n.textContent = String(i+1).padStart(2,"0");
+  });
+
+  /* ---------- Keyboard navigation ---------- */
+  function current(){
+    let best = 0, bestD = Infinity;
+    slides.forEach((s,i)=>{
+      const d = Math.abs(s.getBoundingClientRect().top);
+      if(d < bestD){ bestD = d; best = i; }
+    });
+    return best;
+  }
+  document.addEventListener("keydown", e=>{
+    if(e.target.matches("input,textarea")) return;
+    let dir = 0;
+    if(["ArrowDown","PageDown"," "].includes(e.key)) dir = 1;
+    else if(["ArrowUp","PageUp"].includes(e.key)) dir = -1;
+    else if(e.key === "Home"){ slides[0].scrollIntoView(); e.preventDefault(); return; }
+    else if(e.key === "End"){ slides[slides.length-1].scrollIntoView(); e.preventDefault(); return; }
+    if(!dir) return;
+    const next = Math.min(slides.length-1, Math.max(0, current()+dir));
+    slides[next].scrollIntoView();
+    e.preventDefault();
+  });
+})();
+</script>
+
+</body>
+</html>
